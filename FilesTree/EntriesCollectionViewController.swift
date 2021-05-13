@@ -35,12 +35,7 @@ class EntriesCollectionViewController: UICollectionViewController {
                 self.collectionView.reloadItems(at: self.collectionView.indexPathsForVisibleItems)
                 
                 self.collectionView.setCollectionViewLayout(layout, animated: true) { _ in
-                    switch self.activeLayout {
-                        case .grid:
-                            self.layoutButton.image = UIImage(systemName: "square.grid.2x2")
-                        case .column:
-                            self.layoutButton.image = UIImage(systemName: "list.dash")
-                    }
+                    self.updateLayoutButton(for: self.activeLayout)
                 }
             }
         }
@@ -128,6 +123,15 @@ class EntriesCollectionViewController: UICollectionViewController {
         collectionView.reloadData()
     }
     
+    func updateLayoutButton(for layout: Layout) {
+        switch layout {
+            case .grid:
+                self.layoutButton.image = UIImage(systemName: "square.grid.2x2")
+            case .column:
+                self.layoutButton.image = UIImage(systemName: "list.dash")
+        }
+    }
+    
     func constructEntriesTree(from values: [[String]]) {
         for value in values {
             let entry = Entry(itemID: UUID(uuidString: value[0])!, parentItemID: UUID(uuidString: value[1]), itemType: value[2] == "f" ? .file : .directory, itemName: value[3])
@@ -195,6 +199,7 @@ class EntriesCollectionViewController: UICollectionViewController {
         nextViewController.entriesTree = childEntriesTree
         nextViewController.entries = entries
         nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.row].itemName
+        nextViewController.updateLayoutButton(for: nextViewController.activeLayout)
         
         self.navigationController?.pushViewController(nextViewController, animated: true)
     }
