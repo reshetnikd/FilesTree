@@ -14,7 +14,12 @@ class EntriesCollectionViewController: UICollectionViewController {
     @IBOutlet var layoutButton: UIBarButtonItem!
     
     @IBAction func switchLayout(_ sender: UIBarButtonItem) {
-        
+        switch activeLayout {
+            case .grid:
+                activeLayout = .column
+            case .column:
+                activeLayout = .grid
+        }
     }
     
     enum Layout {
