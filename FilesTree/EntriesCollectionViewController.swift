@@ -7,20 +7,55 @@
 
 import UIKit
 
-private let reuseIdentifier = "Cell"
+private let gridReuseIdentifier = "GridEntry"
+private let columnReuseIdentifier = "ColumnEntry"
 
 class EntriesCollectionViewController: UICollectionViewController {
+    @IBOutlet var layoutButton: UIBarButtonItem!
+    
+    @IBAction func switchLayout(_ sender: UIBarButtonItem) {
+        
+    }
+    
+    enum Layout {
+        case grid, column
+    }
+    
+    var entries: [Entry] = []
+    var entriesTree: [UUID: Entry] = [:]
+    var layout: [Layout: UICollectionViewLayout] = [:]
+    var activeLayout: Layout = .grid {
+        didSet {
+            if let layout = layout[activeLayout] {
+                self.collectionView.reloadItems(at: self.collectionView.indexPathsForVisibleItems)
+                
+                self.collectionView.setCollectionViewLayout(layout, animated: true) { _ in
+                    switch self.activeLayout {
+                        case .grid:
+                            self.layoutButton.image = UIImage(systemName: "square.grid.2x2")
+                        case .column:
+                            self.layoutButton.image = UIImage(systemName: "list.dash")
+                    }
+                }
+            }
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Register cell classes
-        self.collectionView!.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
-
-        // Do any additional setup after loading the view.
+        
+        layout[.grid] = generateGridLayout()
+        layout[.column] = generateColumnLayout()
+        
+        if let layout = layout[activeLayout] {
+            collectionView.collectionViewLayout = layout
+        }
+        
+        if entriesTree.isEmpty && entries.isEmpty {
+            fetchData()
+        } else {
+            updateUI()
+        }
     }
     
     func generateColumnLayout() -> UICollectionViewLayout {
@@ -53,6 +88,53 @@ class EntriesCollectionViewController: UICollectionViewController {
         
         return UICollectionViewCompositionalLayout(section: section)
     }
+    
+    func fetchData() {
+        var componetns = URLComponents(string: "https://sheets.googleapis.com/v4/spreadsheets/1e8gLI6Ft1qlawb7DWHUGPUQlkpDaV5wxkuJvNkWGGHE/values/Sheet1")!
+        componetns.queryItems = [URLQueryItem(name: "key", value: "AIzaSyBPybXkT_7v-Fjzg9xDnCpEglBRM1QtiV4")]
+        let request = URLRequest(url: componetns.url!)
+        
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            if let data = data {
+                do {
+                    let response = try JSONDecoder().decode(Response.self, from: data).values
+                    
+                    self.constructEntriesTree(from: response)
+                    
+                    DispatchQueue.main.async {
+                        self.updateUI()
+                    }
+                } catch DecodingError.keyNotFound(let key, let context) {
+                    Swift.print("could not find key \(key) in JSON: \(context.debugDescription)")
+                } catch DecodingError.valueNotFound(let type, let context) {
+                    Swift.print("could not find type \(type) in JSON: \(context.debugDescription)")
+                } catch DecodingError.typeMismatch(let type, let context) {
+                    Swift.print("type mismatch for type \(type) in JSON: \(context.debugDescription)")
+                } catch DecodingError.dataCorrupted(let context) {
+                    Swift.print("data found to be corrupted in JSON: \(context.debugDescription)")
+                } catch let error as NSError {
+                    NSLog("Error in read(from:ofType:) domain= \(error.domain), description= \(error.localizedDescription)")
+                }
+            }
+        }.resume()
+    }
+    
+    func updateUI() {
+        collectionView.reloadData()
+    }
+    
+    func constructEntriesTree(from values: [[String]]) {
+        for value in values {
+            let entry = Entry(itemID: UUID(uuidString: value[0])!, parentItemID: UUID(uuidString: value[1]), itemType: value[2] == "f" ? .file : .directory, itemName: value[3])
+            entries.append(entry)
+        }
+        
+        for entry in entries {
+            if entry.parentItemID == nil {
+                entriesTree[entry.itemID] = entry
+            }
+        }
+    }
 
     /*
     // MARK: - Navigation
@@ -67,21 +149,23 @@ class EntriesCollectionViewController: UICollectionViewController {
     // MARK: UICollectionViewDataSource
 
     override func numberOfSections(in collectionView: UICollectionView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 1
     }
 
 
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of items
-        return 0
+        return entriesTree.count
     }
 
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath)
+        let identifier = activeLayout == .grid ? gridReuseIdentifier : columnReuseIdentifier
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! EntryCollectionViewCell
     
-        // Configure the cell
-    
+        if !entriesTree.values.sorted().isEmpty {
+            let entry = entriesTree.values.sorted()[indexPath.item]
+            cell.update(with: entry)
+        }
+        
         return cell
     }
 
