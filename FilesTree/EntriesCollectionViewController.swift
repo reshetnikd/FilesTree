@@ -170,6 +170,29 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
 
     // MARK: UICollectionViewDelegate
+    
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard entriesTree.values.sorted()[indexPath.item].itemType != .file else {
+            return
+        }
+        
+        var childEntriesTree: [UUID: Entry] = [:]
+        
+        for entry in entries {
+            if entry.parentItemID == entriesTree.values.sorted()[indexPath.row].itemID {
+                childEntriesTree[entry.itemID] = entry
+            }
+        }
+        
+        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
+        let nextViewController = storyBoard.instantiateViewController(withIdentifier: "EntriesViewController") as! EntriesCollectionViewController
+        nextViewController.activeLayout = activeLayout
+        nextViewController.entriesTree = childEntriesTree
+        nextViewController.entries = entries
+        nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.row].itemName
+        
+        self.navigationController?.pushViewController(nextViewController, animated: true)
+    }
 
     /*
     // Uncomment this method to specify if the specified item should be highlighted during tracking
