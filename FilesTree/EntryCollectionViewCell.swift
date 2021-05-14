@@ -31,12 +31,13 @@ class EntryCollectionViewCell: UICollectionViewCell {
             accessoryImageView.image = chevronImage
             accessoryImageView.tintColor = UIColor.systemBlue
             
-            let inset = CGFloat(10)
+            let inset = CGFloat(5)
             NSLayoutConstraint.activate([
                 accessoryImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
                 accessoryImageView.widthAnchor.constraint(equalToConstant: 13),
                 accessoryImageView.heightAnchor.constraint(equalToConstant: 20),
                 accessoryImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -inset),
+                accessoryImageView.leadingAnchor.constraint(equalTo: itemNameLabel.trailingAnchor, constant: 8),
                 
                 seperatorView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: inset),
                 seperatorView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),

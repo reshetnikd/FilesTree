@@ -59,15 +59,15 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
     
     func generateColumnLayout() -> UICollectionViewLayout {
-        let padding: CGFloat = 10
+        let padding: CGFloat = 5
         
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(120)), subitems: [item])
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(44)), subitems: [item])
         group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: padding, bottom: 0, trailing: padding)
         
         let section = NSCollectionLayoutSection(group: group)
-        section.interGroupSpacing = padding
+        section.interGroupSpacing = 2
         section.contentInsets = NSDirectionalEdgeInsets(top: padding, leading: 0, bottom: padding, trailing: 0)
         
         return UICollectionViewCompositionalLayout(section: section)
