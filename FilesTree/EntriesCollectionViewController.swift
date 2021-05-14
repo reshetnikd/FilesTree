@@ -10,6 +10,10 @@ import UIKit
 private let gridReuseIdentifier = "GridEntry"
 private let columnReuseIdentifier = "ColumnEntry"
 
+enum Layout {
+    case grid, column
+}
+
 class EntriesCollectionViewController: UICollectionViewController {
     @IBOutlet var layoutButton: UIBarButtonItem!
     
@@ -20,10 +24,6 @@ class EntriesCollectionViewController: UICollectionViewController {
             case .column:
                 activeLayout = .grid
         }
-    }
-    
-    enum Layout {
-        case grid, column
     }
     
     var entries: [Entry] = []
@@ -172,7 +172,7 @@ class EntriesCollectionViewController: UICollectionViewController {
     
         if !entriesTree.values.sorted().isEmpty {
             let entry = entriesTree.values.sorted()[indexPath.item]
-            cell.update(with: entry)
+            cell.update(with: entry, for: activeLayout)
         }
         
         return cell
