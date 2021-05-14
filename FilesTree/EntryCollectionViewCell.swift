@@ -48,6 +48,10 @@ class EntryCollectionViewCell: UICollectionViewCell {
             if entry.itemType == .file {
                 accessoryImageView.removeFromSuperview()
             }
+        } else if layout == .grid {
+            contentView.layer.borderColor = UIColor.lightGray.withAlphaComponent(0.7).cgColor
+            contentView.layer.cornerRadius = 10
+            contentView.layer.borderWidth = 1
         }
     }
 }

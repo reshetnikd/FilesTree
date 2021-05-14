@@ -74,11 +74,11 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
     
     func generateGridLayout() -> UICollectionViewLayout {
-        let padding: CGFloat = 20
+        let padding: CGFloat = 5
         
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1/4)), subitem: item, count: 3)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1/6)), subitem: item, count: 3)
         group.interItemSpacing = .fixed(padding)
         group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: padding, bottom: 0, trailing: padding)
         
