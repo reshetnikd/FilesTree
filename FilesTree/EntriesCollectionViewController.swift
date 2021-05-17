@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import GoogleSignIn
 
 private let gridReuseIdentifier = "GridEntry"
 private let columnReuseIdentifier = "ColumnEntry"
@@ -16,6 +17,11 @@ enum Layout {
 
 class EntriesCollectionViewController: UICollectionViewController {
     @IBOutlet var layoutButton: UIBarButtonItem!
+    @IBOutlet var signInButton: UIBarButtonItem!
+    
+    @IBAction func signIn(_ sender: UIBarButtonItem) {
+        GIDSignIn.sharedInstance().signIn()
+    }
     
     @IBAction func switchLayout(_ sender: UIBarButtonItem) {
         switch activeLayout {
@@ -45,6 +51,13 @@ class EntriesCollectionViewController: UICollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        GIDSignIn.sharedInstance()?.presentingViewController = self
+        
+        // Automatically sign in the user.
+        GIDSignIn.sharedInstance()?.restorePreviousSignIn()
+        
+        GIDSignIn.sharedInstance().signOut() // To check if scopes granted correctly
         
         layout[.grid] = generateGridLayout()
         layout[.column] = generateColumnLayout()
