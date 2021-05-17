@@ -40,6 +40,8 @@ class EntriesCollectionViewController: UICollectionViewController {
             }
         }
     }
+    
+    let service = GoogleSheetsService()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,7 +54,17 @@ class EntriesCollectionViewController: UICollectionViewController {
         }
         
         if entriesTree.isEmpty && entries.isEmpty {
-            fetchData()
+            service.getValues { result in
+                switch result {
+                    case .success(let values):
+                        self.constructEntriesTree(from: values)
+                        DispatchQueue.main.async {
+                            self.updateUI()
+                        }
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                }
+            }
         } else {
             updateUI()
         }
