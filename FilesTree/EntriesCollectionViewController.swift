@@ -56,8 +56,6 @@ class EntriesCollectionViewController: UICollectionViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(updateSignInButton), name: App.stateUpdatedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateLayoutButton), name: Layout.layoutUpdatedNotification, object: nil)
         
-        GIDSignIn.sharedInstance()?.presentingViewController = self
-        
         // Automatically sign in the user.
         GIDSignIn.sharedInstance()?.restorePreviousSignIn()
         
@@ -88,6 +86,12 @@ class EntriesCollectionViewController: UICollectionViewController {
         } else {
             updateUI()
         }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // Must be set each time to prevent "presentingViewController must be set." runtime crash.
+        GIDSignIn.sharedInstance()?.presentingViewController = self
     }
     
     func generateColumnLayout() -> UICollectionViewLayout {
