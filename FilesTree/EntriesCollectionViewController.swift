@@ -161,7 +161,11 @@ class EntriesCollectionViewController: UICollectionViewController {
     
     func constructEntriesTree(from values: [[String]]) {
         for value in values {
-            let entry = Entry(itemID: UUID(uuidString: value[0])!, parentItemID: UUID(uuidString: value[1]), itemType: value[2] == "f" ? .file : .directory, itemName: value[3])
+            guard let uuid = UUID(uuidString: value[0]) else {
+                continue // Protect from incorrect data or it corruption in source Google Sheets File.
+            }
+            
+            let entry = Entry(itemID: uuid, parentItemID: UUID(uuidString: value[1]), itemType: value[2] == "f" ? .file : .directory, itemName: value[3])
             entries.append(entry)
         }
         
