@@ -31,10 +31,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         }
         
         // Perform any operations on signed in user here.
-        for scope in user.grantedScopes {
-            print(scope)
-        }
-        
         // Request additional scopes.
         if !user.grantedScopes.contains(where: { $0 as! String == kGTLRAuthScopeSheetsSpreadsheets }) {
             var currentScopes = GIDSignIn.sharedInstance().scopes
@@ -57,7 +53,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Initialize sign-in
+        // Initialize sign-in with Google.
         GIDSignIn.sharedInstance().clientID = "913111204097-6oa0ga437ujrv30jnogs0hbqk60k8rsa.apps.googleusercontent.com"
         GIDSignIn.sharedInstance().delegate = self
         

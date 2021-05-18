@@ -42,7 +42,6 @@ struct GoogleSheetsService {
         GIDSignIn.sharedInstance().scopes = scopes
         service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
         service.executeQuery(query) { ticket, object, error in
-            print(object)
             print(ticket.statusCode)
         }
     }

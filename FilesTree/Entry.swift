@@ -29,7 +29,3 @@ struct Entry: Codable, Comparable {
         }
     }
 }
-
-struct Response: Codable {
-    var values: [[String]]
-}
