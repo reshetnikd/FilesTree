@@ -101,11 +101,18 @@
                         </connections>
                     </collectionView>
                     <navigationItem key="navigationItem" title="Entries" id="68X-Xc-d4q">
-                        <barButtonItem key="leftBarButtonItem" image="person" catalog="system" id="df7-Jx-evv">
-                            <connections>
-                                <action selector="signIn:" destination="7Ij-rX-wgp" id="NHK-YB-Xha"/>
-                            </connections>
-                        </barButtonItem>
+                        <leftBarButtonItems>
+                            <barButtonItem image="person" catalog="system" id="df7-Jx-evv">
+                                <connections>
+                                    <action selector="signIn:" destination="7Ij-rX-wgp" id="NHK-YB-Xha"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem systemItem="refresh" id="hv6-B3-XJ9">
+                                <connections>
+                                    <action selector="updateData:" destination="7Ij-rX-wgp" id="nMM-Kk-l8c"/>
+                                </connections>
+                            </barButtonItem>
+                        </leftBarButtonItems>
                         <barButtonItem key="rightBarButtonItem" image="square.grid.2x2" catalog="system" id="kni-A4-aYI">
                             <connections>
                                 <action selector="switchLayout:" destination="7Ij-rX-wgp" id="tB5-o6-Man"/>

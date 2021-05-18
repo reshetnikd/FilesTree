@@ -32,6 +32,10 @@ class EntriesCollectionViewController: UICollectionViewController {
         }
     }
     
+    @IBAction func updateData(_ sender: UIBarButtonItem) {
+        service.updateValues(with: constructValues(from: entries))
+    }
+    
     var entries: [Entry] = []
     var entriesTree: [UUID: Entry] = [:]
     var layout: [Layout: UICollectionViewLayout] = [:]
@@ -56,8 +60,6 @@ class EntriesCollectionViewController: UICollectionViewController {
         
         // Automatically sign in the user.
         GIDSignIn.sharedInstance()?.restorePreviousSignIn()
-        
-        GIDSignIn.sharedInstance().signOut() // To check if scopes granted correctly
         
         layout[.grid] = generateGridLayout()
         layout[.column] = generateColumnLayout()
@@ -168,6 +170,24 @@ class EntriesCollectionViewController: UICollectionViewController {
                 entriesTree[entry.itemID] = entry
             }
         }
+    }
+    
+    func constructValues(from entries: [Entry]) -> [[String]] {
+        var values: [[String]] = [[String]()]
+        var initialIndex: Int = 0
+        
+        for entry in entries {
+            values[initialIndex].append(entry.itemID.uuidString)
+            values[initialIndex].append(entry.parentItemID?.uuidString ?? "")
+            values[initialIndex].append(entry.itemType == .directory ? "d" : "f")
+            values[initialIndex].append(entry.itemName)
+            values.append([])
+            initialIndex += 1
+        }
+        
+        values.removeLast()
+        
+        return values
     }
 
     /*

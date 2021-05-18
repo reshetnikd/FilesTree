@@ -7,6 +7,7 @@
 
 import UIKit
 import GoogleSignIn
+import GoogleAPIClientForREST
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
@@ -33,19 +34,33 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         for scope in user.grantedScopes {
             print(scope)
         }
+        
+        // Request additional scopes.
+        if !user.grantedScopes.contains(where: { $0 as! String == kGTLRAuthScopeSheetsSpreadsheets }) {
+            var currentScopes = GIDSignIn.sharedInstance().scopes
+            currentScopes?.append(kGTLRAuthScopeSheetsSpreadsheets)
+            
+            GIDSignIn.sharedInstance().scopes = currentScopes
+            // Set loginHint to skip the account chooser.
+            GIDSignIn.sharedInstance().loginHint = user.profile.email
+            GIDSignIn.sharedInstance().signIn()
+        } else {
+            App.sharedInstance.state = .authorized
+        }
     }
     
     func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!,
               withError error: Error!) {
         // Perform any operations when the user disconnects from app here.
-        // ...
+        App.sharedInstance.state = .unauthorized
     }
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Initialize sign-in
-        GIDSignIn.sharedInstance().clientID = "913111204097-3h29lv6h86vrspo2camgeg8gpg5on8sv.apps.googleusercontent.com"
+        GIDSignIn.sharedInstance().clientID = "913111204097-6oa0ga437ujrv30jnogs0hbqk60k8rsa.apps.googleusercontent.com"
         GIDSignIn.sharedInstance().delegate = self
+        
         return true
     }
 
