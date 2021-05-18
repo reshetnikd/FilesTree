@@ -12,16 +12,13 @@ private let gridReuseIdentifier = "GridEntry"
 private let columnReuseIdentifier = "ColumnEntry"
 
 enum Layout {
+    static let layoutUpdatedNotification = Notification.Name("Layout.Updated")
+    
     case grid, column
 }
 
 class EntriesCollectionViewController: UICollectionViewController {
     @IBOutlet var layoutButton: UIBarButtonItem!
-    @IBOutlet var signInButton: UIBarButtonItem!
-    
-    @IBAction func signIn(_ sender: UIBarButtonItem) {
-        GIDSignIn.sharedInstance().signIn()
-    }
     
     @IBAction func switchLayout(_ sender: UIBarButtonItem) {
         switch activeLayout {
@@ -44,9 +41,9 @@ class EntriesCollectionViewController: UICollectionViewController {
             if let layout = layout[activeLayout] {
                 self.collectionView.reloadItems(at: self.collectionView.indexPathsForVisibleItems)
                 
-                self.collectionView.setCollectionViewLayout(layout, animated: true) { _ in
-                    self.updateLayoutButton(for: self.activeLayout)
-                }
+                self.collectionView.setCollectionViewLayout(layout, animated: true)
+                
+                NotificationCenter.default.post(name: Layout.layoutUpdatedNotification, object: nil)
             }
         }
     }
@@ -55,6 +52,9 @@ class EntriesCollectionViewController: UICollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(updateSignInButton), name: App.stateUpdatedNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateLayoutButton), name: Layout.layoutUpdatedNotification, object: nil)
         
         GIDSignIn.sharedInstance()?.presentingViewController = self
         
@@ -66,6 +66,11 @@ class EntriesCollectionViewController: UICollectionViewController {
         
         if let layout = layout[activeLayout] {
             collectionView.collectionViewLayout = layout
+        }
+        
+        if self.navigationController!.viewControllers.count == 1 {
+            let signInButton = UIBarButtonItem(image: UIImage(systemName: "person"), style: .plain, target: self, action: #selector(signIn))
+            navigationItem.leftBarButtonItem = signInButton
         }
         
         if entriesTree.isEmpty && entries.isEmpty {
@@ -117,15 +122,36 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
     
     func updateUI() {
+        updateLayoutButton()
+        updateSignInButton()
         collectionView.reloadData()
     }
     
-    func updateLayoutButton(for layout: Layout) {
-        switch layout {
+    @objc func signIn() {
+        switch App.sharedInstance.state {
+            case .unauthorized:
+                GIDSignIn.sharedInstance().signIn()
+            case .authorized:
+                GIDSignIn.sharedInstance().signOut()
+                App.sharedInstance.state = .unauthorized
+        }
+    }
+    
+    @objc func updateLayoutButton() {
+        switch activeLayout {
             case .grid:
                 self.layoutButton.image = UIImage(systemName: "square.grid.2x2")
             case .column:
                 self.layoutButton.image = UIImage(systemName: "list.dash")
+        }
+    }
+    
+    @objc func updateSignInButton() {
+        switch App.sharedInstance.state {
+            case .authorized:
+                self.navigationItem.leftBarButtonItem?.image = UIImage(systemName: "person.fill")
+            case .unauthorized:
+                self.navigationItem.leftBarButtonItem?.image = UIImage(systemName: "person")
         }
     }
     
@@ -214,7 +240,6 @@ class EntriesCollectionViewController: UICollectionViewController {
         nextViewController.entriesTree = childEntriesTree
         nextViewController.entries = entries
         nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.row].itemName
-        nextViewController.updateLayoutButton(for: nextViewController.activeLayout)
         
         self.navigationController?.pushViewController(nextViewController, animated: true)
     }

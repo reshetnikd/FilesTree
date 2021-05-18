@@ -101,10 +101,10 @@
                         </connections>
                     </collectionView>
                     <navigationItem key="navigationItem" title="Entries" id="68X-Xc-d4q">
-                        <leftBarButtonItems>
-                            <barButtonItem image="person" catalog="system" id="df7-Jx-evv">
+                        <rightBarButtonItems>
+                            <barButtonItem image="square.grid.2x2" catalog="system" id="kni-A4-aYI">
                                 <connections>
-                                    <action selector="signIn:" destination="7Ij-rX-wgp" id="NHK-YB-Xha"/>
+                                    <action selector="switchLayout:" destination="7Ij-rX-wgp" id="tB5-o6-Man"/>
                                 </connections>
                             </barButtonItem>
                             <barButtonItem systemItem="refresh" id="hv6-B3-XJ9">
@@ -112,16 +112,10 @@
                                     <action selector="updateData:" destination="7Ij-rX-wgp" id="nMM-Kk-l8c"/>
                                 </connections>
                             </barButtonItem>
-                        </leftBarButtonItems>
-                        <barButtonItem key="rightBarButtonItem" image="square.grid.2x2" catalog="system" id="kni-A4-aYI">
-                            <connections>
-                                <action selector="switchLayout:" destination="7Ij-rX-wgp" id="tB5-o6-Man"/>
-                            </connections>
-                        </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                     <connections>
                         <outlet property="layoutButton" destination="kni-A4-aYI" id="E3G-G6-IQU"/>
-                        <outlet property="signInButton" destination="df7-Jx-evv" id="5cb-uE-S0E"/>
                     </connections>
                 </collectionViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="xtL-vC-fjP" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -150,7 +144,6 @@
     <resources>
         <image name="doc.richtext" catalog="system" width="115" height="128"/>
         <image name="folder" catalog="system" width="128" height="97"/>
-        <image name="person" catalog="system" width="128" height="117"/>
         <image name="square.grid.2x2" catalog="system" width="128" height="114"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
