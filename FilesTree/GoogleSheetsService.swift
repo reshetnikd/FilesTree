@@ -32,17 +32,22 @@ struct GoogleSheetsService {
     }
     
     func updateValues(with updateValues: [[String]]) {
-        let valueRange = GTLRSheets_ValueRange()
-        valueRange.range = range
-        valueRange.values = updateValues
-        
-        let query = GTLRSheetsQuery_SpreadsheetsValuesUpdate.query(withObject: valueRange, spreadsheetId: sheetID, range: range)
-        query.valueInputOption = "USER_ENTERED"
-        
-        GIDSignIn.sharedInstance().scopes = scopes
+        let query = GTLRSheetsQuery_SpreadsheetsValuesClear.query(withObject: GTLRSheets_ClearValuesRequest(), spreadsheetId: sheetID, range: range)
         service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
         service.executeQuery(query) { ticket, object, error in
             print(ticket.statusCode)
+            let valueRange = GTLRSheets_ValueRange()
+            valueRange.range = range
+            valueRange.values = updateValues
+            
+            let query = GTLRSheetsQuery_SpreadsheetsValuesUpdate.query(withObject: valueRange, spreadsheetId: sheetID, range: range)
+            query.valueInputOption = "USER_ENTERED"
+            
+            GIDSignIn.sharedInstance().scopes = scopes
+            service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
+            service.executeQuery(query) { ticket, object, error in
+                print(ticket.statusCode)
+            }
         }
     }
 }

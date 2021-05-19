@@ -288,6 +288,11 @@ class EntriesCollectionViewController: UICollectionViewController {
             return
         }
         
+        // Remove all subentries if type of the deleted entry is directory.
+        if entry.itemType == .directory {
+            entries.removeAll { $0.parentItemID == entry.itemID }
+        }
+        
         entries.remove(at: index)
         entriesTree[entry.itemID] = nil
         
