@@ -41,6 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             GIDSignIn.sharedInstance().signIn()
         } else {
             App.sharedInstance.state = .authorized
+            NotificationCenter.default.post(name: App.stateAuthorizedNotidication, object: nil)
         }
     }
     

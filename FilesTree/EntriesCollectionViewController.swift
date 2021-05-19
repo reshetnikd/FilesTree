@@ -56,10 +56,8 @@ class EntriesCollectionViewController: UICollectionViewController {
         super.viewDidLoad()
         
         NotificationCenter.default.addObserver(self, selector: #selector(updateSignInButton), name: App.stateUpdatedNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(synchronizeDataSource), name: App.stateAuthorizedNotidication, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateLayoutButton), name: Layout.layoutUpdatedNotification, object: nil)
-        
-        // Automatically sign in the user.
-        GIDSignIn.sharedInstance()?.restorePreviousSignIn()
         
         layout[.grid] = generateGridLayout()
         layout[.column] = generateColumnLayout()
@@ -78,6 +76,10 @@ class EntriesCollectionViewController: UICollectionViewController {
                 switch result {
                     case .success(let values):
                         self.constructEntriesTree(from: values)
+                        
+                        // Automatically sign in the user.
+                        GIDSignIn.sharedInstance()?.restorePreviousSignIn()
+                        
                         DispatchQueue.main.async {
                             self.updateUI()
                         }
@@ -156,11 +158,14 @@ class EntriesCollectionViewController: UICollectionViewController {
         switch App.sharedInstance.state {
             case .authorized:
                 self.navigationItem.leftBarButtonItem?.image = UIImage(systemName: "person.fill")
-                // Update values to synchronize state of the remote data source after user has successfully signed in.
-                GoogleSheetsService.sharedInstance.updateValues(with: constructValues(from: App.sharedInstance.entriesStore))
             case .unauthorized:
                 self.navigationItem.leftBarButtonItem?.image = UIImage(systemName: "person")
         }
+    }
+    
+    @objc func synchronizeDataSource() {
+        // Update values to synchronize state of the remote data source after user has successfully signed in.
+        GoogleSheetsService.sharedInstance.updateValues(with: constructValues(from: App.sharedInstance.entriesStore))
     }
     
     func constructEntriesTree(from values: [[String]]) {

@@ -15,6 +15,7 @@ class App {
     
     static let sharedInstance = App()
     static let stateUpdatedNotification = Notification.Name("App.stateUpdated")
+    static let stateAuthorizedNotidication = Notification.Name("App.stateAuthorized")
   
     var entriesStore: [Entry] = []
     var state: State = .unauthorized {
