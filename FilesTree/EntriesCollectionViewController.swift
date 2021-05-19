@@ -262,10 +262,36 @@ class EntriesCollectionViewController: UICollectionViewController {
         nextViewController.activeLayout = activeLayout
         nextViewController.entriesTree = childEntriesTree
         nextViewController.entries = entries
-        nextViewController.rootEntryID = entriesTree.values.sorted()[indexPath.row].itemID
-        nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.row].itemName
+        nextViewController.rootEntryID = entriesTree.values.sorted()[indexPath.item].itemID
+        nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.item].itemName
         
         self.navigationController?.pushViewController(nextViewController, animated: true)
+    }
+    
+    override func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { (elements) -> UIMenu? in
+            let delete = UIAction(title: "Delete") { _ in
+                self.deleteEntry(at: indexPath)
+                self.service.updateValues(with: self.constructValues(from: self.entries))
+            }
+            
+            return UIMenu(title: "", image: nil, identifier: nil, options: [], children: [delete])
+        }
+        
+        return config
+    }
+
+    func deleteEntry(at indexPath: IndexPath) {
+        let entry = entriesTree.values.sorted()[indexPath.item]
+        
+        guard let index = entries.firstIndex(where: { $0 == entry }) else {
+            return
+        }
+        
+        entries.remove(at: index)
+        entriesTree[entry.itemID] = nil
+        
+        collectionView.deleteItems(at: [indexPath])
     }
 
     /*
