@@ -30,7 +30,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
             return
         }
         
-        // Perform any operations on signed in user here.
         // Request additional scopes.
         if !user.grantedScopes.contains(where: { $0 as! String == kGTLRAuthScopeSheetsSpreadsheets }) {
             var currentScopes = GIDSignIn.sharedInstance().scopes
@@ -47,7 +46,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
     
     func sign(_ signIn: GIDSignIn!, didDisconnectWith user: GIDGoogleUser!,
               withError error: Error!) {
-        // Perform any operations when the user disconnects from app here.
         App.sharedInstance.state = .unauthorized
     }
 

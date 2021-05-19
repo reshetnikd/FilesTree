@@ -38,7 +38,6 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
     
     var rootEntryID: UUID?
-    var entries: [Entry] = []
     var entriesTree: [UUID: Entry] = [:]
     var layout: [Layout: UICollectionViewLayout] = [:]
     var activeLayout: Layout = .grid {
@@ -52,8 +51,6 @@ class EntriesCollectionViewController: UICollectionViewController {
             }
         }
     }
-    
-    let service = GoogleSheetsService()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,8 +73,8 @@ class EntriesCollectionViewController: UICollectionViewController {
             navigationItem.leftBarButtonItem = signInButton
         }
         
-        if entriesTree.isEmpty && entries.isEmpty {
-            service.getValues { result in
+        if entriesTree.isEmpty && App.sharedInstance.entriesStore.isEmpty {
+            GoogleSheetsService.sharedInstance.getValues { result in
                 switch result {
                     case .success(let values):
                         self.constructEntriesTree(from: values)
@@ -159,6 +156,8 @@ class EntriesCollectionViewController: UICollectionViewController {
         switch App.sharedInstance.state {
             case .authorized:
                 self.navigationItem.leftBarButtonItem?.image = UIImage(systemName: "person.fill")
+                // Update values to synchronize state of the remote data source after user has successfully signed in.
+                GoogleSheetsService.sharedInstance.updateValues(with: constructValues(from: App.sharedInstance.entriesStore))
             case .unauthorized:
                 self.navigationItem.leftBarButtonItem?.image = UIImage(systemName: "person")
         }
@@ -171,10 +170,10 @@ class EntriesCollectionViewController: UICollectionViewController {
             }
             
             let entry = Entry(itemID: uuid, parentItemID: UUID(uuidString: value[1]), itemType: value[2] == "f" ? .file : .directory, itemName: value[3])
-            entries.append(entry)
+            App.sharedInstance.entriesStore.append(entry)
         }
         
-        for entry in entries {
+        for entry in App.sharedInstance.entriesStore {
             if entry.parentItemID == nil {
                 entriesTree[entry.itemID] = entry
             }
@@ -203,9 +202,14 @@ class EntriesCollectionViewController: UICollectionViewController {
         let entriesNames = Array(entriesTree.values.filter { $0.itemType == type }.map { $0.itemName })
         let entry = Entry(itemID: UUID(), parentItemID: rootEntryID, itemType: type, itemName: "Untitled".madeUnique(withRespectTo: entriesNames))
         
-        entries.append(entry)
+        App.sharedInstance.entriesStore.append(entry)
         entriesTree[entry.itemID] = entry
-        service.updateValues(with: constructValues(from: entries))
+        
+        // Update values with Google Sheets Service only if user authorized.
+        if App.sharedInstance.state == .authorized {
+            GoogleSheetsService.sharedInstance.updateValues(with: constructValues(from: App.sharedInstance.entriesStore))
+        }
+        
         updateUI()
     }
 
@@ -251,7 +255,7 @@ class EntriesCollectionViewController: UICollectionViewController {
         
         var childEntriesTree: [UUID: Entry] = [:]
         
-        for entry in entries {
+        for entry in App.sharedInstance.entriesStore {
             if entry.parentItemID == entriesTree.values.sorted()[indexPath.row].itemID {
                 childEntriesTree[entry.itemID] = entry
             }
@@ -261,7 +265,6 @@ class EntriesCollectionViewController: UICollectionViewController {
         let nextViewController = storyBoard.instantiateViewController(withIdentifier: "EntriesViewController") as! EntriesCollectionViewController
         nextViewController.activeLayout = activeLayout
         nextViewController.entriesTree = childEntriesTree
-        nextViewController.entries = entries
         nextViewController.rootEntryID = entriesTree.values.sorted()[indexPath.item].itemID
         nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.item].itemName
         
@@ -272,7 +275,11 @@ class EntriesCollectionViewController: UICollectionViewController {
         let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { (elements) -> UIMenu? in
             let delete = UIAction(title: "Delete") { _ in
                 self.deleteEntry(at: indexPath)
-                self.service.updateValues(with: self.constructValues(from: self.entries))
+                
+                // Update values with Google Sheets Service only if user authorized.
+                if App.sharedInstance.state == .authorized {
+                    GoogleSheetsService.sharedInstance.updateValues(with: self.constructValues(from: App.sharedInstance.entriesStore))
+                }
             }
             
             return UIMenu(title: "", image: nil, identifier: nil, options: [], children: [delete])
@@ -284,16 +291,16 @@ class EntriesCollectionViewController: UICollectionViewController {
     func deleteEntry(at indexPath: IndexPath) {
         let entry = entriesTree.values.sorted()[indexPath.item]
         
-        guard let index = entries.firstIndex(where: { $0 == entry }) else {
+        guard let index = App.sharedInstance.entriesStore.firstIndex(where: { $0 == entry }) else {
             return
         }
         
         // Remove all subentries if type of the deleted entry is directory.
         if entry.itemType == .directory {
-            entries.removeAll { $0.parentItemID == entry.itemID }
+            App.sharedInstance.entriesStore.removeAll { $0.parentItemID == entry.itemID }
         }
         
-        entries.remove(at: index)
+        App.sharedInstance.entriesStore.remove(at: index)
         entriesTree[entry.itemID] = nil
         
         collectionView.deleteItems(at: [indexPath])

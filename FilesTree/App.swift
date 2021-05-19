@@ -16,6 +16,7 @@ class App {
     static let sharedInstance = App()
     static let stateUpdatedNotification = Notification.Name("App.stateUpdated")
   
+    var entriesStore: [Entry] = []
     var state: State = .unauthorized {
         didSet {
             NotificationCenter.default.post(name: App.stateUpdatedNotification, object: nil)
