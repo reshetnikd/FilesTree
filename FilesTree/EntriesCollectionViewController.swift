@@ -29,10 +29,23 @@ class EntriesCollectionViewController: UICollectionViewController {
         }
     }
     
-    @IBAction func updateData(_ sender: UIBarButtonItem) {
+    @IBAction func addDirectory(_ sender: UIBarButtonItem) {
+        let entry = Entry(itemID: UUID(), parentItemID: rootEntryID, itemType: .directory, itemName: "Test Directory")
+        entries.append(entry)
+        entriesTree[entry.itemID] = entry
         service.updateValues(with: constructValues(from: entries))
+        updateUI()
     }
     
+    @IBAction func addFile(_ sender: UIBarButtonItem) {
+        let entry = Entry(itemID: UUID(), parentItemID: rootEntryID, itemType: .file, itemName: "Test File")
+        entries.append(entry)
+        entriesTree[entry.itemID] = entry
+        service.updateValues(with: constructValues(from: entries))
+        updateUI()
+    }
+    
+    var rootEntryID: UUID?
     var entries: [Entry] = []
     var entriesTree: [UUID: Entry] = [:]
     var layout: [Layout: UICollectionViewLayout] = [:]
@@ -247,6 +260,7 @@ class EntriesCollectionViewController: UICollectionViewController {
         nextViewController.activeLayout = activeLayout
         nextViewController.entriesTree = childEntriesTree
         nextViewController.entries = entries
+        nextViewController.rootEntryID = entriesTree.values.sorted()[indexPath.row].itemID
         nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.row].itemName
         
         self.navigationController?.pushViewController(nextViewController, animated: true)

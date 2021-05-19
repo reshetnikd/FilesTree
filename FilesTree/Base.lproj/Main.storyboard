@@ -107,9 +107,14 @@
                                     <action selector="switchLayout:" destination="7Ij-rX-wgp" id="tB5-o6-Man"/>
                                 </connections>
                             </barButtonItem>
-                            <barButtonItem systemItem="refresh" id="hv6-B3-XJ9">
+                            <barButtonItem title="Add Directory" image="folder.badge.plus" catalog="system" id="2d8-0h-KTh">
                                 <connections>
-                                    <action selector="updateData:" destination="7Ij-rX-wgp" id="nMM-Kk-l8c"/>
+                                    <action selector="addDirectory:" destination="7Ij-rX-wgp" id="gM2-SS-zZp"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Add File" image="doc.badge.plus" catalog="system" id="c4V-Sp-8le">
+                                <connections>
+                                    <action selector="addFile:" destination="7Ij-rX-wgp" id="7bv-Cf-WCn"/>
                                 </connections>
                             </barButtonItem>
                         </rightBarButtonItems>
@@ -142,8 +147,10 @@
         </scene>
     </scenes>
     <resources>
+        <image name="doc.badge.plus" catalog="system" width="119" height="128"/>
         <image name="doc.richtext" catalog="system" width="115" height="128"/>
         <image name="folder" catalog="system" width="128" height="97"/>
+        <image name="folder.badge.plus" catalog="system" width="128" height="91"/>
         <image name="square.grid.2x2" catalog="system" width="128" height="114"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
