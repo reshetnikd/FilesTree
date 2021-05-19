@@ -30,19 +30,11 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
     
     @IBAction func addDirectory(_ sender: UIBarButtonItem) {
-        let entry = Entry(itemID: UUID(), parentItemID: rootEntryID, itemType: .directory, itemName: "Test Directory")
-        entries.append(entry)
-        entriesTree[entry.itemID] = entry
-        service.updateValues(with: constructValues(from: entries))
-        updateUI()
+        addEntryOf(type: .directory)
     }
     
     @IBAction func addFile(_ sender: UIBarButtonItem) {
-        let entry = Entry(itemID: UUID(), parentItemID: rootEntryID, itemType: .file, itemName: "Test File")
-        entries.append(entry)
-        entriesTree[entry.itemID] = entry
-        service.updateValues(with: constructValues(from: entries))
-        updateUI()
+        addEntryOf(type: .file)
     }
     
     var rootEntryID: UUID?
@@ -205,6 +197,16 @@ class EntriesCollectionViewController: UICollectionViewController {
         values.removeLast()
         
         return values
+    }
+    
+    func addEntryOf(type: Entry.ItemType) {
+        let entriesNames = Array(entriesTree.values.filter { $0.itemType == type }.map { $0.itemName })
+        let entry = Entry(itemID: UUID(), parentItemID: rootEntryID, itemType: type, itemName: "Untitled".madeUnique(withRespectTo: entriesNames))
+        
+        entries.append(entry)
+        entriesTree[entry.itemID] = entry
+        service.updateValues(with: constructValues(from: entries))
+        updateUI()
     }
 
     /*
