@@ -18,24 +18,9 @@ enum Layout {
 }
 
 class EntriesCollectionViewController: UICollectionViewController {
-    @IBOutlet var layoutButton: UIBarButtonItem!
-    
-    @IBAction func switchLayout(_ sender: UIBarButtonItem) {
-        switch activeLayout {
-            case .grid:
-                activeLayout = .column
-            case .column:
-                activeLayout = .grid
-        }
-    }
-    
-    @IBAction func addDirectory(_ sender: UIBarButtonItem) {
-        addEntryOf(type: .directory)
-    }
-    
-    @IBAction func addFile(_ sender: UIBarButtonItem) {
-        addEntryOf(type: .file)
-    }
+    let layoutButton: UIBarButtonItem = UIBarButtonItem()
+    let addDirectoryButton: UIBarButtonItem = UIBarButtonItem()
+    let addFileButton: UIBarButtonItem = UIBarButtonItem()
     
     var rootEntryID: UUID?
     var entriesTree: [UUID: Entry] = [:]
@@ -55,6 +40,10 @@ class EntriesCollectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        collectionView.register(EntryCollectionViewCell.self, forCellWithReuseIdentifier: gridReuseIdentifier)
+        collectionView.register(EntryCollectionViewCell.self, forCellWithReuseIdentifier: columnReuseIdentifier)
+        collectionView.backgroundColor = .systemBackground
+        
         NotificationCenter.default.addObserver(self, selector: #selector(updateSignInButton), name: App.stateUpdatedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(synchronizeDataSource), name: App.stateAuthorizedNotidication, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateLayoutButton), name: Layout.layoutUpdatedNotification, object: nil)
@@ -66,10 +55,25 @@ class EntriesCollectionViewController: UICollectionViewController {
             collectionView.collectionViewLayout = layout
         }
         
-        if self.navigationController!.viewControllers.count == 1 {
+        if self.navigationController?.viewControllers.count == 1 {
             let signInButton = UIBarButtonItem(image: UIImage(systemName: "person"), style: .plain, target: self, action: #selector(signIn))
             navigationItem.leftBarButtonItem = signInButton
+            title = "Entries"
         }
+        
+        layoutButton.action = #selector(switchLayout)
+        layoutButton.target = self
+        layoutButton.image = UIImage(systemName: "square.grid.2x2")
+        
+        addFileButton.action = #selector(addFile)
+        addFileButton.target = self
+        addFileButton.image = UIImage(systemName: "doc.badge.plus")
+        
+        addDirectoryButton.action = #selector(addDirectory)
+        addDirectoryButton.target = self
+        addDirectoryButton.image = UIImage(systemName: "folder.badge.plus")
+        
+        navigationItem.rightBarButtonItems = [layoutButton, addDirectoryButton, addFileButton]
         
         if entriesTree.isEmpty && App.sharedInstance.entriesStore.isEmpty {
             GoogleSheetsService.sharedInstance.getValues { result in
@@ -133,6 +137,23 @@ class EntriesCollectionViewController: UICollectionViewController {
         updateLayoutButton()
         updateSignInButton()
         collectionView.reloadData()
+    }
+    
+    @objc func switchLayout() {
+        switch activeLayout {
+            case .grid:
+                activeLayout = .column
+            case .column:
+                activeLayout = .grid
+        }
+    }
+    
+    @objc func addDirectory() {
+        addEntryOf(type: .directory)
+    }
+    
+    @objc func addFile() {
+        addEntryOf(type: .file)
     }
     
     @objc func signIn() {
@@ -266,9 +287,7 @@ class EntriesCollectionViewController: UICollectionViewController {
             }
         }
         
-        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-        let nextViewController = storyBoard.instantiateViewController(withIdentifier: "EntriesViewController") as! EntriesCollectionViewController
-        nextViewController.activeLayout = activeLayout
+        let nextViewController = EntriesCollectionViewController(collectionViewLayout: collectionView.collectionViewLayout)
         nextViewController.entriesTree = childEntriesTree
         nextViewController.rootEntryID = entriesTree.values.sorted()[indexPath.item].itemID
         nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.item].itemName
