@@ -95,6 +95,10 @@ class EntriesCollectionViewController: UICollectionViewController {
             view.addSubview(activityIndicator.view)
             activityIndicator.didMove(toParent: self)
             
+            // Disable action buttons.
+            navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = false }
+            navigationItem.leftBarButtonItems?.forEach { $0.isEnabled = false }
+            
             GoogleSheetsService.sharedInstance.getValues { result in
                 switch result {
                     case .success(let values):
@@ -108,6 +112,10 @@ class EntriesCollectionViewController: UICollectionViewController {
                             self.activityIndicator.willMove(toParent: nil)
                             self.activityIndicator.view.removeFromSuperview()
                             self.activityIndicator.removeFromParent()
+                            
+                            // Enable action buttons.
+                            self.navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = true }
+                            self.navigationItem.leftBarButtonItems?.forEach { $0.isEnabled = true }
                             
                             self.updateUI()
                         }
