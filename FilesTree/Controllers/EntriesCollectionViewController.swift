@@ -21,6 +21,7 @@ class EntriesCollectionViewController: UICollectionViewController {
     let layoutButton: UIBarButtonItem = UIBarButtonItem()
     let addDirectoryButton: UIBarButtonItem = UIBarButtonItem()
     let addFileButton: UIBarButtonItem = UIBarButtonItem()
+    let signInButton: UIBarButtonItem = UIBarButtonItem()
     
     var rootEntryID: UUID?
     var entriesTree: [UUID: Entry] = [:]
@@ -40,41 +41,52 @@ class EntriesCollectionViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Register cell classes.
         collectionView.register(EntryCollectionViewCell.self, forCellWithReuseIdentifier: gridReuseIdentifier)
         collectionView.register(EntryCollectionViewCell.self, forCellWithReuseIdentifier: columnReuseIdentifier)
         collectionView.backgroundColor = .systemBackground
         
+        // Add observers to Notification Center.
         NotificationCenter.default.addObserver(self, selector: #selector(updateSignInButton), name: App.stateUpdatedNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(synchronizeDataSource), name: App.stateAuthorizedNotidication, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(updateLayoutButton), name: Layout.layoutUpdatedNotification, object: nil)
         
+        // Generate appropriated layouts.
         layout[.grid] = generateGridLayout()
         layout[.column] = generateColumnLayout()
         
+        // Set active layout.
         if let layout = layout[activeLayout] {
             collectionView.collectionViewLayout = layout
         }
         
+        // Show sign in button in the root view controller.
         if self.navigationController?.viewControllers.count == 1 {
-            let signInButton = UIBarButtonItem(image: UIImage(systemName: "person"), style: .plain, target: self, action: #selector(signIn))
+            signInButton.action = #selector(signIn)
+            signInButton.target = self
+            signInButton.image = UIImage(systemName: "person")
             navigationItem.leftBarButtonItem = signInButton
             title = "Entries"
         }
         
-        layoutButton.action = #selector(switchLayout)
-        layoutButton.target = self
-        layoutButton.image = UIImage(systemName: "square.grid.2x2")
-        
+        // Adjust add file button item.
         addFileButton.action = #selector(addFile)
         addFileButton.target = self
         addFileButton.image = UIImage(systemName: "doc.badge.plus")
         
+        // Adjust add directory button item.
         addDirectoryButton.action = #selector(addDirectory)
         addDirectoryButton.target = self
         addDirectoryButton.image = UIImage(systemName: "folder.badge.plus")
         
+        // Adjust layout button item.
+        layoutButton.action = #selector(switchLayout)
+        layoutButton.target = self
+        layoutButton.image = UIImage(systemName: "square.grid.2x2")
+        
         navigationItem.rightBarButtonItems = [layoutButton, addDirectoryButton, addFileButton]
         
+        // Fetch data at the application launch.
         if entriesTree.isEmpty && App.sharedInstance.entriesStore.isEmpty {
             GoogleSheetsService.sharedInstance.getValues { result in
                 switch result {
@@ -287,8 +299,10 @@ class EntriesCollectionViewController: UICollectionViewController {
             }
         }
         
+        // Create and configure destination view controller for navigation segue.
         let nextViewController = EntriesCollectionViewController(collectionViewLayout: collectionView.collectionViewLayout)
         nextViewController.entriesTree = childEntriesTree
+        nextViewController.activeLayout = activeLayout
         nextViewController.rootEntryID = entriesTree.values.sorted()[indexPath.item].itemID
         nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.item].itemName
         
