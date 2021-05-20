@@ -22,6 +22,7 @@ class EntriesCollectionViewController: UICollectionViewController {
     let addDirectoryButton: UIBarButtonItem = UIBarButtonItem()
     let addFileButton: UIBarButtonItem = UIBarButtonItem()
     let signInButton: UIBarButtonItem = UIBarButtonItem()
+    let activityIndicator: SpinnerViewController = SpinnerViewController()
     
     var rootEntryID: UUID?
     var entriesTree: [UUID: Entry] = [:]
@@ -88,6 +89,12 @@ class EntriesCollectionViewController: UICollectionViewController {
         
         // Fetch data at the application launch.
         if entriesTree.isEmpty && App.sharedInstance.entriesStore.isEmpty {
+            // Add the spinner view controller.
+            addChild(activityIndicator)
+            activityIndicator.view.frame = view.frame
+            view.addSubview(activityIndicator.view)
+            activityIndicator.didMove(toParent: self)
+            
             GoogleSheetsService.sharedInstance.getValues { result in
                 switch result {
                     case .success(let values):
@@ -97,6 +104,11 @@ class EntriesCollectionViewController: UICollectionViewController {
                         GIDSignIn.sharedInstance()?.restorePreviousSignIn()
                         
                         DispatchQueue.main.async {
+                            // Remove the spinner view controller
+                            self.activityIndicator.willMove(toParent: nil)
+                            self.activityIndicator.view.removeFromSuperview()
+                            self.activityIndicator.removeFromParent()
+                            
                             self.updateUI()
                         }
                     case .failure(let error):

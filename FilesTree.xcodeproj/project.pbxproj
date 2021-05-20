@@ -11,6 +11,7 @@
 		351B6AF22652D3CE00EEC900 /* GoogleSheetsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351B6AF12652D3CE00EEC900 /* GoogleSheetsService.swift */; };
 		351B6AF42652E91800EEC900 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351B6AF32652E91800EEC900 /* App.swift */; };
 		351B6AF72655749400EEC900 /* Utilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351B6AF62655749400EEC900 /* Utilities.swift */; };
+		351B6B0026569B3000EEC900 /* SpinnerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 351B6AFF26569B3000EEC900 /* SpinnerViewController.swift */; };
 		35A9D3BC264D65DB0026BE63 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A9D3BB264D65DB0026BE63 /* AppDelegate.swift */; };
 		35A9D3C5264D65DC0026BE63 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 35A9D3C4264D65DC0026BE63 /* Assets.xcassets */; };
 		35A9D3C8264D65DC0026BE63 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 35A9D3C6264D65DC0026BE63 /* LaunchScreen.storyboard */; };
@@ -23,6 +24,7 @@
 		351B6AF12652D3CE00EEC900 /* GoogleSheetsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetsService.swift; sourceTree = "<group>"; };
 		351B6AF32652E91800EEC900 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		351B6AF62655749400EEC900 /* Utilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utilities.swift; sourceTree = "<group>"; };
+		351B6AFF26569B3000EEC900 /* SpinnerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerViewController.swift; sourceTree = "<group>"; };
 		35A9D3B8264D65DB0026BE63 /* FilesTree.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FilesTree.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		35A9D3BB264D65DB0026BE63 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		35A9D3C4264D65DC0026BE63 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 			isa = PBXGroup;
 			children = (
 				35BCDC1E264DAEA800D29F95 /* EntriesCollectionViewController.swift */,
+				351B6AFF26569B3000EEC900 /* SpinnerViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -275,6 +278,7 @@
 				35A9D3D0264D67A20026BE63 /* Entry.swift in Sources */,
 				35BCDC1F264DAEA800D29F95 /* EntriesCollectionViewController.swift in Sources */,
 				35A9D3BC264D65DB0026BE63 /* AppDelegate.swift in Sources */,
+				351B6B0026569B3000EEC900 /* SpinnerViewController.swift in Sources */,
 				35BCDC21264DB06100D29F95 /* EntryCollectionViewCell.swift in Sources */,
 				351B6AF42652E91800EEC900 /* App.swift in Sources */,
 				351B6AF72655749400EEC900 /* Utilities.swift in Sources */,
