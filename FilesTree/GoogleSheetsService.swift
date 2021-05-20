@@ -27,7 +27,9 @@ struct GoogleSheetsService {
                 if let values = object.values as? [[String]] {
                     completion(.success(values))
                 } else {
-                    completion(.failure(error!)) // TODO: Fix Bug
+                    if let error = error {
+                        completion(.failure(error))
+                    }
                 }
             }
         }
