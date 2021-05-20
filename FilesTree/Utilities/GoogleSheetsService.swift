@@ -5,6 +5,8 @@
 //  Created by Dmitry Reshetnik on 17.05.2021.
 //
 
+//  Struct for executing Google Sheets API queries.
+
 import Foundation
 import GoogleSignIn
 import GTMSessionFetcher
@@ -20,6 +22,7 @@ struct GoogleSheetsService {
     private var service = GTLRSheetsService()
     
     func getValues(completion: @escaping (Result<[[String]], Error>) -> Void) {
+        // Returns a range of values from a spreadsheet.
         let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: sheetID, range:range)
         service.apiKey = apiKey
         service.executeQuery(query) { ticket, object, error in
@@ -36,6 +39,7 @@ struct GoogleSheetsService {
     }
     
     func updateValues(with updateValues: [[String]]) {
+        // Clears values from a spreadsheet.
         let query = GTLRSheetsQuery_SpreadsheetsValuesClear.query(withObject: GTLRSheets_ClearValuesRequest(), spreadsheetId: sheetID, range: range)
         service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
         service.executeQuery(query) { ticket, object, error in
@@ -44,8 +48,9 @@ struct GoogleSheetsService {
             valueRange.range = range
             valueRange.values = updateValues
             
+            // Sets values in a range of a spreadsheet.
             let query = GTLRSheetsQuery_SpreadsheetsValuesUpdate.query(withObject: valueRange, spreadsheetId: sheetID, range: range)
-            query.valueInputOption = "USER_ENTERED"
+            query.valueInputOption = "USER_ENTERED" // How the input data should be interpreted.
             
             GIDSignIn.sharedInstance().scopes = scopes
             service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()

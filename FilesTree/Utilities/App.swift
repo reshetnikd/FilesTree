@@ -5,6 +5,8 @@
 //  Created by Dmitry Reshetnik on 17.05.2021.
 //
 
+//  Class to observe application state and providing entries store.
+
 import Foundation
 
 class App {

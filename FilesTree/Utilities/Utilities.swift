@@ -8,6 +8,7 @@
 import Foundation
 
 extension String {
+    // Add number to string for creating new unique string relative to given array of strings.
     func madeUnique(withRespectTo otherStrings: [String]) -> String {
         var possiblyUnique = self
         var uniqueNumber = 1

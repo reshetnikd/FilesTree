@@ -52,6 +52,53 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		351B6AF826564AA600EEC900 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				35A9D3CF264D67A20026BE63 /* Entry.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		351B6AF926564AAE00EEC900 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				35BCDC1E264DAEA800D29F95 /* EntriesCollectionViewController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
+		351B6AFA26564ACA00EEC900 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				35BCDC20264DB06100D29F95 /* EntryCollectionViewCell.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		351B6AFB26564B1200EEC900 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				351B6AF32652E91800EEC900 /* App.swift */,
+				351B6AF12652D3CE00EEC900 /* GoogleSheetsService.swift */,
+				351B6AF62655749400EEC900 /* Utilities.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		351B6AFC265650E300EEC900 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				35A9D3BB264D65DB0026BE63 /* AppDelegate.swift */,
+				35A9D3BD264D65DB0026BE63 /* SceneDelegate.swift */,
+				35A9D3C1264D65DB0026BE63 /* Main.storyboard */,
+				35A9D3C4264D65DC0026BE63 /* Assets.xcassets */,
+				35A9D3C6264D65DC0026BE63 /* LaunchScreen.storyboard */,
+				35A9D3C9264D65DC0026BE63 /* Info.plist */,
+			);
+			path = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		35A9D3AF264D65DB0026BE63 = {
 			isa = PBXGroup;
 			children = (
@@ -73,18 +120,11 @@
 		35A9D3BA264D65DB0026BE63 /* FilesTree */ = {
 			isa = PBXGroup;
 			children = (
-				35A9D3BB264D65DB0026BE63 /* AppDelegate.swift */,
-				35A9D3BD264D65DB0026BE63 /* SceneDelegate.swift */,
-				351B6AF32652E91800EEC900 /* App.swift */,
-				35A9D3CF264D67A20026BE63 /* Entry.swift */,
-				351B6AF62655749400EEC900 /* Utilities.swift */,
-				351B6AF12652D3CE00EEC900 /* GoogleSheetsService.swift */,
-				35BCDC1E264DAEA800D29F95 /* EntriesCollectionViewController.swift */,
-				35BCDC20264DB06100D29F95 /* EntryCollectionViewCell.swift */,
-				35A9D3C1264D65DB0026BE63 /* Main.storyboard */,
-				35A9D3C4264D65DC0026BE63 /* Assets.xcassets */,
-				35A9D3C6264D65DC0026BE63 /* LaunchScreen.storyboard */,
-				35A9D3C9264D65DC0026BE63 /* Info.plist */,
+				351B6AF826564AA600EEC900 /* Model */,
+				351B6AFA26564ACA00EEC900 /* Views */,
+				351B6AF926564AAE00EEC900 /* Controllers */,
+				351B6AFB26564B1200EEC900 /* Utilities */,
+				351B6AFC265650E300EEC900 /* Supporting Files */,
 			);
 			path = FilesTree;
 			sourceTree = "<group>";
@@ -395,7 +435,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 36JR7N2LBE;
-				INFOPLIST_FILE = FilesTree/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/FilesTree/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -447,7 +487,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 36JR7N2LBE;
-				INFOPLIST_FILE = FilesTree/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/FilesTree/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
