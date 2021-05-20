@@ -22,16 +22,18 @@ struct GoogleSheetsService {
     private var service = GTLRSheetsService()
     
     func getValues(completion: @escaping (Result<[[String]], Error>) -> Void) {
-        // Returns a range of values from a spreadsheet.
-        let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: sheetID, range:range)
-        service.apiKey = apiKey
-        service.executeQuery(query) { ticket, object, error in
-            if let object = object as? GTLRSheets_ValueRange {
-                if let values = object.values as? [[String]] {
-                    completion(.success(values))
-                } else {
-                    if let error = error {
-                        completion(.failure(error))
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Returns a range of values from a spreadsheet.
+            let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: sheetID, range:range)
+            service.apiKey = apiKey
+            service.executeQuery(query) { ticket, object, error in
+                if let object = object as? GTLRSheets_ValueRange {
+                    if let values = object.values as? [[String]] {
+                        completion(.success(values))
+                    } else {
+                        if let error = error {
+                            completion(.failure(error)) // TODO: Fix Bug if sheet is empty.
+                        }
                     }
                 }
             }
@@ -39,23 +41,25 @@ struct GoogleSheetsService {
     }
     
     func updateValues(with updateValues: [[String]]) {
-        // Clears values from a spreadsheet.
-        let query = GTLRSheetsQuery_SpreadsheetsValuesClear.query(withObject: GTLRSheets_ClearValuesRequest(), spreadsheetId: sheetID, range: range)
-        service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
-        service.executeQuery(query) { ticket, object, error in
-            print(ticket.statusCode)
-            let valueRange = GTLRSheets_ValueRange()
-            valueRange.range = range
-            valueRange.values = updateValues
-            
-            // Sets values in a range of a spreadsheet.
-            let query = GTLRSheetsQuery_SpreadsheetsValuesUpdate.query(withObject: valueRange, spreadsheetId: sheetID, range: range)
-            query.valueInputOption = "USER_ENTERED" // How the input data should be interpreted.
-            
-            GIDSignIn.sharedInstance().scopes = scopes
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Clears values from a spreadsheet.
+            let query = GTLRSheetsQuery_SpreadsheetsValuesClear.query(withObject: GTLRSheets_ClearValuesRequest(), spreadsheetId: sheetID, range: range)
             service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
             service.executeQuery(query) { ticket, object, error in
                 print(ticket.statusCode)
+                let valueRange = GTLRSheets_ValueRange()
+                valueRange.range = range
+                valueRange.values = updateValues
+                
+                // Sets values in a range of a spreadsheet.
+                let query = GTLRSheetsQuery_SpreadsheetsValuesUpdate.query(withObject: valueRange, spreadsheetId: sheetID, range: range)
+                query.valueInputOption = "USER_ENTERED" // How the input data should be interpreted.
+                
+                GIDSignIn.sharedInstance().scopes = scopes
+                service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
+                service.executeQuery(query) { ticket, object, error in
+                    print(ticket.statusCode)
+                }
             }
         }
     }

@@ -226,9 +226,9 @@ class EntriesCollectionViewController: UICollectionViewController {
     @objc func updateSignInButton() {
         switch App.sharedInstance.state {
             case .authorized:
-                self.navigationItem.leftBarButtonItem?.image = UIImage(systemName: "person.fill")
+                self.signInButton.image = UIImage(systemName: "person.fill")
             case .unauthorized:
-                self.navigationItem.leftBarButtonItem?.image = UIImage(systemName: "person")
+                self.signInButton.image = UIImage(systemName: "person")
         }
     }
     
@@ -238,18 +238,26 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
     
     func constructEntriesTree(from values: [[String]]) {
-        for value in values {
-            guard let uuid = UUID(uuidString: value[0]) else {
-                continue // Protect from incorrect data or it corruption in source Google Sheets File.
+        DispatchQueue.global(qos: .background).async {
+            var context = App.sharedInstance.entriesStore
+            
+            for value in values {
+                guard let uuid = UUID(uuidString: value[0]) else {
+                    continue // Protect from incorrect data or it corruption in source Google Sheets File.
+                }
+                
+                let entry = Entry(itemID: uuid, parentItemID: UUID(uuidString: value[1]), itemType: value[2] == "f" ? .file : .directory, itemName: value[3])
+                context.append(entry)
             }
             
-            let entry = Entry(itemID: uuid, parentItemID: UUID(uuidString: value[1]), itemType: value[2] == "f" ? .file : .directory, itemName: value[3])
-            App.sharedInstance.entriesStore.append(entry)
-        }
-        
-        for entry in App.sharedInstance.entriesStore {
-            if entry.parentItemID == nil {
-                entriesTree[entry.itemID] = entry
+            DispatchQueue.main.async {
+                App.sharedInstance.entriesStore = context
+                
+                for entry in App.sharedInstance.entriesStore {
+                    if entry.parentItemID == nil {
+                        self.entriesTree[entry.itemID] = entry
+                    }
+                }
             }
         }
     }
@@ -273,18 +281,25 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
     
     func addEntryOf(type: Entry.ItemType) {
-        let entriesNames = Array(entriesTree.values.filter { $0.itemType == type }.map { $0.itemName })
-        let entry = Entry(itemID: UUID(), parentItemID: rootEntryID, itemType: type, itemName: "Untitled".madeUnique(withRespectTo: entriesNames))
-        
-        App.sharedInstance.entriesStore.append(entry)
-        entriesTree[entry.itemID] = entry
-        
-        // Update values with Google Sheets Service only if user authorized.
-        if App.sharedInstance.state == .authorized {
-            GoogleSheetsService.sharedInstance.updateValues(with: constructValues(from: App.sharedInstance.entriesStore))
+        DispatchQueue.global(qos: .background).async {
+            var context = App.sharedInstance.entriesStore
+            
+            let entriesNames = Array(self.entriesTree.values.filter { $0.itemType == type }.map { $0.itemName })
+            let entry = Entry(itemID: UUID(), parentItemID: self.rootEntryID, itemType: type, itemName: "Untitled".madeUnique(withRespectTo: entriesNames))
+            
+            context.append(entry)
+            
+            DispatchQueue.main.async {
+                App.sharedInstance.entriesStore = context
+                self.entriesTree[entry.itemID] = entry
+                self.updateUI()
+                
+                // Update values with Google Sheets Service only if user authorized.
+                if App.sharedInstance.state == .authorized {
+                    GoogleSheetsService.sharedInstance.updateValues(with: self.constructValues(from: App.sharedInstance.entriesStore))
+                }
+            }
         }
-        
-        updateUI()
     }
 
     /*
@@ -349,11 +364,6 @@ class EntriesCollectionViewController: UICollectionViewController {
         let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { (elements) -> UIMenu? in
             let delete = UIAction(title: "Delete") { _ in
                 self.deleteEntry(at: indexPath)
-                
-                // Update values with Google Sheets Service only if user authorized.
-                if App.sharedInstance.state == .authorized {
-                    GoogleSheetsService.sharedInstance.updateValues(with: self.constructValues(from: App.sharedInstance.entriesStore))
-                }
             }
             
             return UIMenu(title: "", image: nil, identifier: nil, options: [], children: [delete])
@@ -363,21 +373,34 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
 
     func deleteEntry(at indexPath: IndexPath) {
-        let entry = entriesTree.values.sorted()[indexPath.item]
-        
-        guard let index = App.sharedInstance.entriesStore.firstIndex(where: { $0 == entry }) else {
-            return
+        DispatchQueue.global(qos: .background).async {
+            var context = App.sharedInstance.entriesStore
+            
+            let entry = self.entriesTree.values.sorted()[indexPath.item]
+            
+            guard let index = context.firstIndex(where: { $0 == entry }) else {
+                return
+            }
+            
+            // Remove all subentries if type of the deleted entry is directory.
+            if entry.itemType == .directory {
+                context.removeAll { $0.parentItemID == entry.itemID }
+            }
+            
+            context.remove(at: index)
+            
+            DispatchQueue.main.async {
+                App.sharedInstance.entriesStore = context
+                self.entriesTree[entry.itemID] = nil
+                self.collectionView.deleteItems(at: [indexPath])
+                self.updateUI()
+                
+                // Update values with Google Sheets Service only if user authorized.
+                if App.sharedInstance.state == .authorized {
+                    GoogleSheetsService.sharedInstance.updateValues(with: self.constructValues(from: App.sharedInstance.entriesStore))
+                }
+            }
         }
-        
-        // Remove all subentries if type of the deleted entry is directory.
-        if entry.itemType == .directory {
-            App.sharedInstance.entriesStore.removeAll { $0.parentItemID == entry.itemID }
-        }
-        
-        App.sharedInstance.entriesStore.remove(at: index)
-        entriesTree[entry.itemID] = nil
-        
-        collectionView.deleteItems(at: [indexPath])
     }
 
     /*
