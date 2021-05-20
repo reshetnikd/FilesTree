@@ -108,6 +108,22 @@ class EntriesCollectionViewController: UICollectionViewController {
         }
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        guard previousTraitCollection != nil else {
+            return
+        }
+        
+        collectionView?.collectionViewLayout.invalidateLayout()
+        
+        // Regenerate grid layout to change it heights to prevent shrinking in compact environment.
+        if activeLayout == .grid {
+            self.collectionView.reloadItems(at: self.collectionView.indexPathsForVisibleItems)
+            self.collectionView.setCollectionViewLayout(generateGridLayout(), animated: true)
+        }
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         // Must be set each time to prevent "presentingViewController must be set." runtime crash.
@@ -134,7 +150,7 @@ class EntriesCollectionViewController: UICollectionViewController {
         
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1/6)), subitem: item, count: 3)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(traitCollection.verticalSizeClass == .compact ? 1/3 : 1/6)), subitem: item, count: 3)
         group.interItemSpacing = .fixed(padding)
         group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: padding, bottom: 0, trailing: padding)
         
