@@ -108,16 +108,7 @@ class EntriesCollectionViewController: UICollectionViewController {
                         // There is no need to construct entries tree if "server" does not store values.
                         guard !values.first!.isEmpty else {
                             DispatchQueue.main.async {
-                                // Remove the spinner view controller
-                                self.activityIndicator.willMove(toParent: nil)
-                                self.activityIndicator.view.removeFromSuperview()
-                                self.activityIndicator.removeFromParent()
-                                
-                                // Enable action buttons.
-                                self.navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = true }
-                                self.navigationItem.leftBarButtonItems?.forEach { $0.isEnabled = true }
-                                
-                                self.updateUI()
+                                self.activateUI()
                             }
                             
                             break
@@ -126,16 +117,7 @@ class EntriesCollectionViewController: UICollectionViewController {
                         self.constructEntriesTree(from: values)
                         
                         DispatchQueue.main.async {
-                            // Remove the spinner view controller
-                            self.activityIndicator.willMove(toParent: nil)
-                            self.activityIndicator.view.removeFromSuperview()
-                            self.activityIndicator.removeFromParent()
-                            
-                            // Enable action buttons.
-                            self.navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = true }
-                            self.navigationItem.leftBarButtonItems?.forEach { $0.isEnabled = true }
-                            
-                            self.updateUI()
+                            self.activateUI()
                         }
                     case .failure(let error):
                         print(error.localizedDescription)
@@ -203,6 +185,19 @@ class EntriesCollectionViewController: UICollectionViewController {
         updateLayoutButton()
         updateSignInButton()
         collectionView.reloadData()
+    }
+    
+    func activateUI() {
+        // Remove the spinner view controller
+        activityIndicator.willMove(toParent: nil)
+        activityIndicator.view.removeFromSuperview()
+        activityIndicator.removeFromParent()
+        
+        // Enable action buttons.
+        navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = true }
+        navigationItem.leftBarButtonItems?.forEach { $0.isEnabled = true }
+        
+        updateUI()
     }
     
     @objc func switchLayout() {
