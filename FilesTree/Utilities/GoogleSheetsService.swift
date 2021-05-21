@@ -32,11 +32,9 @@ struct GoogleSheetsService {
                         completion(.success(values))
                     } else if object.values == nil {
                         completion(.success([[String]()]))
-                    } else {
-                        if let error = error {
-                            completion(.failure(error))
-                        }
                     }
+                } else if let error = error {
+                    completion(.failure(error))
                 }
             }
         }
