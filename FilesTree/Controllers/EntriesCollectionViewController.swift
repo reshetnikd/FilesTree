@@ -120,7 +120,12 @@ class EntriesCollectionViewController: UICollectionViewController {
                             self.activateUI()
                         }
                     case .failure(let error):
-                        print(error.localizedDescription)
+                        DispatchQueue.main.async {
+                            let alertController = UIAlertController(title: "There was an error while fetching your entries.", message: error.localizedDescription, preferredStyle: .alert)
+                            alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                            self.present(alertController, animated: true, completion: nil)
+                            self.activateUI()
+                        }
                 }
             }
         } else {
