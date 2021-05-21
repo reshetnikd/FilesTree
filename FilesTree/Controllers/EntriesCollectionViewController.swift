@@ -102,10 +102,28 @@ class EntriesCollectionViewController: UICollectionViewController {
             GoogleSheetsService.sharedInstance.getValues { result in
                 switch result {
                     case .success(let values):
-                        self.constructEntriesTree(from: values)
-                        
                         // Automatically sign in the user.
                         GIDSignIn.sharedInstance()?.restorePreviousSignIn()
+                        
+                        // There is no need to construct entries tree if "server" does not store values.
+                        guard !values.first!.isEmpty else {
+                            DispatchQueue.main.async {
+                                // Remove the spinner view controller
+                                self.activityIndicator.willMove(toParent: nil)
+                                self.activityIndicator.view.removeFromSuperview()
+                                self.activityIndicator.removeFromParent()
+                                
+                                // Enable action buttons.
+                                self.navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = true }
+                                self.navigationItem.leftBarButtonItems?.forEach { $0.isEnabled = true }
+                                
+                                self.updateUI()
+                            }
+                            
+                            break
+                        }
+                        
+                        self.constructEntriesTree(from: values)
                         
                         DispatchQueue.main.async {
                             // Remove the spinner view controller

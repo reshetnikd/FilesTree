@@ -30,9 +30,11 @@ struct GoogleSheetsService {
                 if let object = object as? GTLRSheets_ValueRange {
                     if let values = object.values as? [[String]] {
                         completion(.success(values))
+                    } else if object.values == nil {
+                        completion(.success([[String]()]))
                     } else {
                         if let error = error {
-                            completion(.failure(error)) // TODO: Fix Bug if sheet is empty.
+                            completion(.failure(error))
                         }
                     }
                 }
