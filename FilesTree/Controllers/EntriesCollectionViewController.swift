@@ -67,6 +67,7 @@ class EntriesCollectionViewController: UICollectionViewController {
             signInButton.target = self
             signInButton.image = UIImage(systemName: "person")
             navigationItem.leftBarButtonItem = signInButton
+            updateSignInButton()
             title = "Entries"
         }
         
@@ -102,9 +103,6 @@ class EntriesCollectionViewController: UICollectionViewController {
             GoogleSheetsService.sharedInstance.getValues { result in
                 switch result {
                     case .success(let values):
-                        // Automatically sign in the user.
-                        GIDSignIn.sharedInstance()?.restorePreviousSignIn()
-                        
                         // There is no need to construct entries tree if "server" does not store values.
                         guard !values.first!.isEmpty else {
                             DispatchQueue.main.async {
@@ -151,8 +149,6 @@ class EntriesCollectionViewController: UICollectionViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // Must be set each time to prevent "presentingViewController must be set." runtime crash.
-        GIDSignIn.sharedInstance()?.presentingViewController = self
     }
     
     func generateColumnLayout() -> UICollectionViewLayout {
@@ -188,7 +184,6 @@ class EntriesCollectionViewController: UICollectionViewController {
     
     func updateUI() {
         updateLayoutButton()
-        updateSignInButton()
         collectionView.reloadData()
     }
     
@@ -256,7 +251,7 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
     
     func constructEntriesTree(from values: [[String]]) {
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .background).sync {
             var context = App.sharedInstance.entriesStore
             
             for value in values {
@@ -299,7 +294,7 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
     
     func addEntryOf(type: Entry.ItemType) {
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .background).sync {
             var context = App.sharedInstance.entriesStore
             
             let entriesNames = Array(self.entriesTree.values.filter { $0.itemType == type }.map { $0.itemName })
@@ -391,7 +386,7 @@ class EntriesCollectionViewController: UICollectionViewController {
     }
 
     func deleteEntry(at indexPath: IndexPath) {
-        DispatchQueue.global(qos: .background).async {
+        DispatchQueue.global(qos: .background).sync {
             var context = App.sharedInstance.entriesStore
             
             let entry = self.entriesTree.values.sorted()[indexPath.item]

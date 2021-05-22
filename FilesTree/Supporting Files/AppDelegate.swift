@@ -63,6 +63,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
         // Initialize sign-in with Google.
         GIDSignIn.sharedInstance().clientID = "913111204097-6oa0ga437ujrv30jnogs0hbqk60k8rsa.apps.googleusercontent.com"
         GIDSignIn.sharedInstance().delegate = self
+        GIDSignIn.sharedInstance().presentingViewController = window?.rootViewController
+        
+        // Automatically sign in the user.
+        GIDSignIn.sharedInstance().restorePreviousSignIn()
         
         return true
     }

@@ -22,7 +22,7 @@ struct GoogleSheetsService {
     private var service = GTLRSheetsService()
     
     func getValues(completion: @escaping (Result<[[String]], Error>) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).sync {
             // Returns a range of values from a spreadsheet.
             let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: sheetID, range:range)
             service.apiKey = apiKey
@@ -41,7 +41,7 @@ struct GoogleSheetsService {
     }
     
     func updateValues(with updateValues: [[String]]) {
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).sync {
             // Clears values from a spreadsheet.
             let query = GTLRSheetsQuery_SpreadsheetsValuesClear.query(withObject: GTLRSheets_ClearValuesRequest(), spreadsheetId: sheetID, range: range)
             service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
