@@ -147,10 +147,6 @@ class EntriesCollectionViewController: UICollectionViewController {
         }
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
     func generateColumnLayout() -> UICollectionViewLayout {
         let padding: CGFloat = 5
         
@@ -171,7 +167,7 @@ class EntriesCollectionViewController: UICollectionViewController {
         
         let item = NSCollectionLayoutItem(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1)))
         
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(traitCollection.verticalSizeClass == .compact ? 1/3 : 1/6)), subitem: item, count: 3)
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .absolute(traitCollection.verticalSizeClass == .compact ? 128 : 144)), subitem: item, count: 3)
         group.interItemSpacing = .fixed(padding)
         group.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: padding, bottom: 0, trailing: padding)
         
