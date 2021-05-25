@@ -14,7 +14,7 @@
 
 import Foundation
 
-struct Entry: Codable, Comparable {
+struct Entry: Codable, Comparable, Hashable {
     enum ItemType: String, Codable {
         case file
         case directory
@@ -24,6 +24,10 @@ struct Entry: Codable, Comparable {
     let parentItemID: UUID?
     let itemType: ItemType
     let itemName: String
+    
+    func hasParentID(_ id: UUID) -> Bool {
+        return self.parentItemID == id
+    }
     
     static func < (lhs: Entry, rhs: Entry) -> Bool {
         switch (lhs.itemType, rhs.itemType) {

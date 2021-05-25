@@ -391,12 +391,12 @@ class EntriesCollectionViewController: UICollectionViewController {
                 return
             }
             
+            context.remove(at: index)
+            
             // Remove all subentries if type of the deleted entry is directory.
             if entry.itemType == .directory {
-                context.removeAll { $0.parentItemID == entry.itemID }
+                context = Array(Set(context).subtracting(extractSubentires(from: context, with: entry.itemID)))
             }
-            
-            context.remove(at: index)
             
             DispatchQueue.main.async {
                 App.sharedInstance.entriesStore = context
@@ -410,6 +410,19 @@ class EntriesCollectionViewController: UICollectionViewController {
                 }
             }
         }
+    }
+    
+    func extractSubentires(from entries: [Entry], with id: UUID) -> [Entry] {
+        var foundEntries: [Entry] = []
+        
+        for entry in entries {
+            if entry.hasParentID(id) {
+                foundEntries.append(entry)
+                foundEntries += extractSubentires(from: entries, with: entry.itemID)
+            }
+        }
+        
+        return foundEntries
     }
 
     /*
