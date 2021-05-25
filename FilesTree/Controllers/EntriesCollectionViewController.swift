@@ -385,8 +385,11 @@ class EntriesCollectionViewController: UICollectionViewController {
             
             // Remove all subentries if type of the deleted entry is directory.
             if entry.itemType == .directory {
-//                context = Array(Set(context).subtracting(extractSubentires(from: context, with: entry.itemID))) // Significantly better performance.
-                context = context.filter { !extractSubentires(from: context, with: entry.itemID).contains($0) } // Preserves ordering in source Google Sheets File.
+                // Significantly better performance.
+//                context = Array(Set(context).subtracting(extractSubentires(from: context, with: entry.itemID)))
+                
+                // Preserves ordering in source Google Sheets File.
+                context = context.filter { !extractSubentires(from: context, with: entry.itemID).contains($0) }
             }
             
             DispatchQueue.main.async {
