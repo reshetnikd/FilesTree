@@ -145,12 +145,8 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
         }
     }
     
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        
-        guard previousTraitCollection != nil else {
-            return
-        }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         
         collectionView.frame = view.bounds
         collectionView.collectionViewLayout.invalidateLayout()
