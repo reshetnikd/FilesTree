@@ -31,7 +31,7 @@ class FilesTreeTests: XCTestCase {
         
         measure {
             // Put the code you want to measure the time of here.
-            context = Array(Set(context).subtracting(EntriesCollectionViewController(collectionViewLayout: UICollectionViewCompositionalLayout.list(using: UICollectionLayoutListConfiguration(appearance: .insetGrouped))).extractSubentires(from: context, with: entry.itemID)))
+            context = Array(Set(context).subtracting(EntriesCollectionViewController().extractSubentires(from: context, with: entry.itemID)))
 //            context = context.filter { !EntriesCollectionViewController(collectionViewLayout: UICollectionViewCompositionalLayout.list(using: UICollectionLayoutListConfiguration(appearance: .insetGrouped))).extractSubentires(from: context, with: entry.itemID).contains($0) }
         }
     }

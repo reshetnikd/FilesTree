@@ -17,12 +17,13 @@ enum Layout {
     case grid, column
 }
 
-class EntriesCollectionViewController: UICollectionViewController {
+class EntriesCollectionViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     let layoutButton: UIBarButtonItem = UIBarButtonItem()
     let addDirectoryButton: UIBarButtonItem = UIBarButtonItem()
     let addFileButton: UIBarButtonItem = UIBarButtonItem()
     let signInButton: UIBarButtonItem = UIBarButtonItem()
     let activityIndicator: SpinnerViewController = SpinnerViewController()
+    let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout.list(using: UICollectionLayoutListConfiguration(appearance: .plain)))
     
     var rootEntryID: UUID?
     var entriesTree: [UUID: Entry] = [:]
@@ -41,6 +42,19 @@ class EntriesCollectionViewController: UICollectionViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // Setup collection view.
+        collectionView.frame = view.bounds
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        view.addSubview(collectionView)
+        
+        NSLayoutConstraint.activate([
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            collectionView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
+            collectionView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor)
+        ])
         
         // Register cell classes.
         collectionView.register(EntryCollectionViewCell.self, forCellWithReuseIdentifier: gridReuseIdentifier)
@@ -138,12 +152,13 @@ class EntriesCollectionViewController: UICollectionViewController {
             return
         }
         
-        collectionView?.collectionViewLayout.invalidateLayout()
+        collectionView.frame = view.bounds
+        collectionView.collectionViewLayout.invalidateLayout()
         
         // Regenerate grid layout to change it heights to prevent shrinking in compact environment.
         if activeLayout == .grid {
-            self.collectionView.reloadItems(at: self.collectionView.indexPathsForVisibleItems)
-            self.collectionView.setCollectionViewLayout(generateGridLayout(), animated: true)
+            collectionView.reloadItems(at: collectionView.indexPathsForVisibleItems)
+            collectionView.setCollectionViewLayout(generateGridLayout(), animated: true)
         }
     }
     
@@ -226,18 +241,18 @@ class EntriesCollectionViewController: UICollectionViewController {
     @objc func updateLayoutButton() {
         switch activeLayout {
             case .grid:
-                self.layoutButton.image = UIImage(systemName: "square.grid.2x2")
+                layoutButton.image = UIImage(systemName: "square.grid.2x2")
             case .column:
-                self.layoutButton.image = UIImage(systemName: "list.dash")
+                layoutButton.image = UIImage(systemName: "list.dash")
         }
     }
     
     @objc func updateSignInButton() {
         switch App.sharedInstance.state {
             case .authorized:
-                self.signInButton.image = UIImage(systemName: "person.fill")
+                signInButton.image = UIImage(systemName: "person.fill")
             case .unauthorized:
-                self.signInButton.image = UIImage(systemName: "person")
+                signInButton.image = UIImage(systemName: "person")
         }
     }
     
@@ -313,16 +328,16 @@ class EntriesCollectionViewController: UICollectionViewController {
 
     // MARK: UICollectionViewDataSource
 
-    override func numberOfSections(in collectionView: UICollectionView) -> Int {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
 
 
-    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return entriesTree.count
     }
 
-    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let identifier = activeLayout == .grid ? gridReuseIdentifier : columnReuseIdentifier
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! EntryCollectionViewCell
     
@@ -336,7 +351,7 @@ class EntriesCollectionViewController: UICollectionViewController {
 
     // MARK: UICollectionViewDelegate
     
-    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard entriesTree.values.sorted()[indexPath.item].itemType != .file else {
             return
         }
@@ -350,7 +365,7 @@ class EntriesCollectionViewController: UICollectionViewController {
         }
         
         // Create and configure destination view controller for navigation segue.
-        let nextViewController = EntriesCollectionViewController(collectionViewLayout: collectionView.collectionViewLayout)
+        let nextViewController = EntriesCollectionViewController()
         nextViewController.entriesTree = childEntriesTree
         nextViewController.activeLayout = activeLayout
         nextViewController.rootEntryID = entriesTree.values.sorted()[indexPath.item].itemID
@@ -359,7 +374,7 @@ class EntriesCollectionViewController: UICollectionViewController {
         self.navigationController?.pushViewController(nextViewController, animated: true)
     }
     
-    override func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
         let config = UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { (elements) -> UIMenu? in
             let delete = UIAction(title: "Delete") { _ in
                 self.deleteEntry(at: indexPath)

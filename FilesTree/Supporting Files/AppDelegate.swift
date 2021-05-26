@@ -54,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, GIDSignInDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let rootViewController = EntriesCollectionViewController(collectionViewLayout: UICollectionViewLayout())
+        let rootViewController = EntriesCollectionViewController()
         
         window = UIWindow()
         window?.rootViewController = UINavigationController(rootViewController: rootViewController)
