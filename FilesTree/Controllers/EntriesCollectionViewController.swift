@@ -47,6 +47,7 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
         collectionView.frame = view.bounds
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(collectionView)
         
         NSLayoutConstraint.activate([
