@@ -130,7 +130,7 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
                             break
                         }
                         
-                        self.constructEntriesTree(from: values)
+                        self.entriesTree = GoogleSheetsService.sharedInstance.constructEntriesTree(from: values)
                         
                         DispatchQueue.main.async {
                             self.activateUI()
@@ -250,50 +250,7 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
     
     @objc func synchronizeDataSource() {
         // Update values to synchronize state of the remote data source after user has successfully signed in.
-        GoogleSheetsService.sharedInstance.updateValues(with: constructValues(from: App.sharedInstance.entriesStore))
-    }
-    
-    func constructEntriesTree(from values: [[String]]) {
-        DispatchQueue.global(qos: .background).sync {
-            var context = App.sharedInstance.entriesStore
-            
-            for value in values {
-                guard let uuid = UUID(uuidString: value[0]) else {
-                    continue // Protect from incorrect data or it corruption in source Google Sheets File.
-                }
-                
-                let entry = Entry(itemID: uuid, parentItemID: UUID(uuidString: value[1]), itemType: value[2] == "f" ? .file : .directory, itemName: value[3])
-                context.append(entry)
-            }
-            
-            DispatchQueue.main.async {
-                App.sharedInstance.entriesStore = context
-                
-                for entry in App.sharedInstance.entriesStore {
-                    if entry.parentItemID == nil {
-                        self.entriesTree[entry.itemID] = entry
-                    }
-                }
-            }
-        }
-    }
-    
-    func constructValues(from entries: [Entry]) -> [[String]] {
-        var values: [[String]] = [[String]()]
-        var initialIndex: Int = 0
-        
-        for entry in entries {
-            values[initialIndex].append(entry.itemID.uuidString)
-            values[initialIndex].append(entry.parentItemID?.uuidString ?? "")
-            values[initialIndex].append(entry.itemType == .directory ? "d" : "f")
-            values[initialIndex].append(entry.itemName)
-            values.append([])
-            initialIndex += 1
-        }
-        
-        values.removeLast()
-        
-        return values
+        GoogleSheetsService.sharedInstance.updateValues(with: GoogleSheetsService.sharedInstance.constructValues(from: App.sharedInstance.entriesStore))
     }
     
     func addEntryOf(type: Entry.ItemType) {
@@ -312,7 +269,7 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
                 
                 // Update values with Google Sheets Service only if user authorized.
                 if App.sharedInstance.state == .authorized {
-                    GoogleSheetsService.sharedInstance.updateValues(with: self.constructValues(from: App.sharedInstance.entriesStore))
+                    GoogleSheetsService.sharedInstance.updateValues(with: GoogleSheetsService.sharedInstance.constructValues(from: App.sharedInstance.entriesStore))
                 }
             }
         }
@@ -407,7 +364,7 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
                 
                 // Update values with Google Sheets Service only if user authorized.
                 if App.sharedInstance.state == .authorized {
-                    GoogleSheetsService.sharedInstance.updateValues(with: self.constructValues(from: App.sharedInstance.entriesStore))
+                    GoogleSheetsService.sharedInstance.updateValues(with: GoogleSheetsService.sharedInstance.constructValues(from: App.sharedInstance.entriesStore))
                 }
             }
         }

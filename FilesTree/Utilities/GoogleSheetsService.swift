@@ -63,4 +63,50 @@ struct GoogleSheetsService {
             }
         }
     }
+    
+    func constructEntriesTree(from values: [[String]]) -> [UUID: Entry] {
+        DispatchQueue.global(qos: .background).sync {
+            var context = App.sharedInstance.entriesStore
+            var tree: [UUID: Entry] = [:]
+            
+            for value in values {
+                guard let uuid = UUID(uuidString: value[0]) else {
+                    continue // Protect from incorrect data or it corruption in source Google Sheets File.
+                }
+                
+                let entry = Entry(itemID: uuid, parentItemID: UUID(uuidString: value[1]), itemType: value[2] == "f" ? .file : .directory, itemName: value[3])
+                context.append(entry)
+            }
+            
+            for entry in context {
+                if entry.parentItemID == nil {
+                    tree[entry.itemID] = entry
+                }
+            }
+            
+            DispatchQueue.main.async {
+                App.sharedInstance.entriesStore = context
+            }
+            
+            return tree
+        }
+    }
+    
+    func constructValues(from entries: [Entry]) -> [[String]] {
+        var values: [[String]] = [[String]()]
+        var initialIndex: Int = 0
+        
+        for entry in entries {
+            values[initialIndex].append(entry.itemID.uuidString)
+            values[initialIndex].append(entry.parentItemID?.uuidString ?? "")
+            values[initialIndex].append(entry.itemType == .directory ? "d" : "f")
+            values[initialIndex].append(entry.itemName)
+            values.append([])
+            initialIndex += 1
+        }
+        
+        values.removeLast()
+        
+        return values
+    }
 }
