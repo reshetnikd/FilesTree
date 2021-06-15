@@ -42,6 +42,24 @@ struct GoogleSheetsService {
     
     func updateValues(with updateValues: [[String]]) {
         DispatchQueue.global(qos: .userInitiated).sync {
+            let valueRange = GTLRSheets_ValueRange()
+            valueRange.range = range
+            valueRange.values = updateValues
+            
+            // Sets values in a range of a spreadsheet.
+            let query = GTLRSheetsQuery_SpreadsheetsValuesUpdate.query(withObject: valueRange, spreadsheetId: sheetID, range: range)
+            query.valueInputOption = "USER_ENTERED" // How the input data should be interpreted.
+            
+            GIDSignIn.sharedInstance().scopes = scopes
+            service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
+            service.executeQuery(query) { ticket, object, error in
+                print(ticket.statusCode)
+            }
+        }
+    }
+    
+    func deleteValues(with updateValues: [[String]]) {
+        DispatchQueue.global(qos: .userInitiated).sync {
             // Clears values from a spreadsheet.
             let query = GTLRSheetsQuery_SpreadsheetsValuesClear.query(withObject: GTLRSheets_ClearValuesRequest(), spreadsheetId: sheetID, range: range)
             service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()

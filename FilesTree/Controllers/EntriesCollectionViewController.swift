@@ -364,7 +364,7 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
                 
                 // Update values with Google Sheets Service only if user authorized.
                 if App.sharedInstance.state == .authorized {
-                    GoogleSheetsService.sharedInstance.updateValues(with: GoogleSheetsService.sharedInstance.constructValues(from: App.sharedInstance.entriesStore))
+                    GoogleSheetsService.sharedInstance.deleteValues(with: GoogleSheetsService.sharedInstance.constructValues(from: App.sharedInstance.entriesStore))
                 }
             }
         }
