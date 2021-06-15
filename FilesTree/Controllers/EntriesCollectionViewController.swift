@@ -27,6 +27,10 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
     
     var rootEntryID: UUID?
     var entriesTree: [UUID: Entry] = [:]
+    var entries: [Entry] {
+        return entriesTree.values.sorted()
+    }
+    
     var layout: [Layout: UICollectionViewLayout] = [:]
     var activeLayout: Layout = .grid {
         didSet {
@@ -290,8 +294,8 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
         let identifier = activeLayout == .grid ? gridReuseIdentifier : columnReuseIdentifier
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: identifier, for: indexPath) as! EntryCollectionViewCell
     
-        if !entriesTree.values.sorted().isEmpty {
-            let entry = entriesTree.values.sorted()[indexPath.item]
+        if !entries.isEmpty {
+            let entry = entries[indexPath.item]
             cell.update(with: entry, for: activeLayout)
         }
         
@@ -301,14 +305,14 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
     // MARK: UICollectionViewDelegate
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard entriesTree.values.sorted()[indexPath.item].itemType != .file else {
+        guard entries[indexPath.item].itemType != .file else {
             return
         }
         
         var childEntriesTree: [UUID: Entry] = [:]
         
         for entry in App.sharedInstance.entriesStore {
-            if entry.parentItemID == entriesTree.values.sorted()[indexPath.row].itemID {
+            if entry.parentItemID == entries[indexPath.row].itemID {
                 childEntriesTree[entry.itemID] = entry
             }
         }
@@ -317,8 +321,8 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
         let nextViewController = EntriesCollectionViewController()
         nextViewController.entriesTree = childEntriesTree
         nextViewController.activeLayout = activeLayout
-        nextViewController.rootEntryID = entriesTree.values.sorted()[indexPath.item].itemID
-        nextViewController.navigationItem.title = entriesTree.values.sorted()[indexPath.item].itemName
+        nextViewController.rootEntryID = entries[indexPath.item].itemID
+        nextViewController.navigationItem.title = entries[indexPath.item].itemName
         
         self.navigationController?.pushViewController(nextViewController, animated: true)
     }
@@ -339,7 +343,7 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
         DispatchQueue.global(qos: .background).sync {
             var context = App.sharedInstance.entriesStore
             
-            let entry = self.entriesTree.values.sorted()[indexPath.item]
+            let entry = self.entries[indexPath.item]
             
             guard let index = context.firstIndex(where: { $0 == entry }) else {
                 return
