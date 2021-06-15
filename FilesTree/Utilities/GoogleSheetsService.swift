@@ -65,19 +65,8 @@ struct GoogleSheetsService {
             service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
             service.executeQuery(query) { ticket, object, error in
                 print(ticket.statusCode)
-                let valueRange = GTLRSheets_ValueRange()
-                valueRange.range = range
-                valueRange.values = updateValues
                 
-                // Sets values in a range of a spreadsheet.
-                let query = GTLRSheetsQuery_SpreadsheetsValuesUpdate.query(withObject: valueRange, spreadsheetId: sheetID, range: range)
-                query.valueInputOption = "USER_ENTERED" // How the input data should be interpreted.
-                
-                GIDSignIn.sharedInstance().scopes = scopes
-                service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
-                service.executeQuery(query) { ticket, object, error in
-                    print(ticket.statusCode)
-                }
+                self.updateValues(with: updateValues)
             }
         }
     }
