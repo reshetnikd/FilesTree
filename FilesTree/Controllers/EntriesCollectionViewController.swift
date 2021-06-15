@@ -22,7 +22,7 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
     let addDirectoryButton: UIBarButtonItem = UIBarButtonItem()
     let addFileButton: UIBarButtonItem = UIBarButtonItem()
     let signInButton: UIBarButtonItem = UIBarButtonItem()
-    let activityIndicator: SpinnerViewController = SpinnerViewController()
+    let activityIndicator: UIActivityIndicatorView = UIActivityIndicatorView(style: .large)
     let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout.list(using: UICollectionLayoutListConfiguration(appearance: .plain)))
     
     var rootEntryID: UUID?
@@ -105,10 +105,13 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
         // Fetch data at the application launch.
         if entriesTree.isEmpty && App.sharedInstance.entriesStore.isEmpty {
             // Add the spinner view controller.
-            addChild(activityIndicator)
-            activityIndicator.view.frame = view.frame
-            view.addSubview(activityIndicator.view)
-            activityIndicator.didMove(toParent: self)
+            activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+            activityIndicator.hidesWhenStopped = true
+            activityIndicator.startAnimating()
+            view.addSubview(activityIndicator)
+            
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
             
             // Disable action buttons.
             navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = false }
@@ -190,9 +193,7 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
     
     func activateUI() {
         // Remove the spinner view controller
-        activityIndicator.willMove(toParent: nil)
-        activityIndicator.view.removeFromSuperview()
-        activityIndicator.removeFromParent()
+        activityIndicator.stopAnimating()
         
         // Enable action buttons.
         navigationItem.rightBarButtonItems?.forEach { $0.isEnabled = true }
