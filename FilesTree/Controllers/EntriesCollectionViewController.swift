@@ -25,10 +25,12 @@ class EntriesCollectionViewController: UIViewController, UICollectionViewDelegat
     let activityIndicator: UIActivityIndicatorView = UIActivityIndicatorView(style: .large)
     let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewCompositionalLayout.list(using: UICollectionLayoutListConfiguration(appearance: .plain)))
     
+    private var entries: [Entry] = []
     var rootEntryID: UUID?
-    var entriesTree: [UUID: Entry] = [:]
-    var entries: [Entry] {
-        return entriesTree.values.sorted()
+    var entriesTree: [UUID: Entry] = [:] {
+        didSet {
+            self.entries = self.entriesTree.values.sorted()
+        }
     }
     
     var layout: [Layout: UICollectionViewLayout] = [:]
