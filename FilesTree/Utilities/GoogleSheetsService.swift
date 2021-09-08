@@ -22,7 +22,7 @@ struct GoogleSheetsService {
     private var service = GTLRSheetsService()
     
     func getValues(completion: @escaping (Result<[[String]], Error>) -> Void) {
-        DispatchQueue.global(qos: .userInitiated).sync {
+        DispatchQueue.global(qos: .userInitiated).async {
             // Returns a range of values from a spreadsheet.
             let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: sheetID, range:range)
             service.apiKey = apiKey
@@ -41,7 +41,7 @@ struct GoogleSheetsService {
     }
     
     func updateValues(with updateValues: [[String]]) {
-        DispatchQueue.global(qos: .userInitiated).sync {
+        DispatchQueue.global(qos: .userInteractive).async {
             let valueRange = GTLRSheets_ValueRange()
             valueRange.range = range
             valueRange.values = updateValues
@@ -59,7 +59,7 @@ struct GoogleSheetsService {
     }
     
     func deleteValues(with updateValues: [[String]]) {
-        DispatchQueue.global(qos: .userInitiated).sync {
+        DispatchQueue.global(qos: .userInteractive).async {
             // Clears values from a spreadsheet.
             let query = GTLRSheetsQuery_SpreadsheetsValuesClear.query(withObject: GTLRSheets_ClearValuesRequest(), spreadsheetId: sheetID, range: range)
             service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
@@ -72,7 +72,7 @@ struct GoogleSheetsService {
     }
     
     func constructEntriesTree(from values: [[String]]) -> [UUID: Entry] {
-        DispatchQueue.global(qos: .background).sync {
+        DispatchQueue.global(qos: .userInteractive).sync {
             var context = App.sharedInstance.entriesStore
             var tree: [UUID: Entry] = [:]
             
